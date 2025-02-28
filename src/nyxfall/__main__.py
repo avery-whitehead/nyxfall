@@ -20,13 +20,13 @@ def main():
     if not args.query and not args.random:
         print("You must either supply a query or use the --random flag")
     elif args.random:
-        card = search_random()
-        print(card)
-        card.print_as_card()
+        search_random().print_as_card()
     elif args.exact:
         card = search_exact(args.query)
-        print(card if card is not None else f"Card with name '{args.query}' not found")
-        card.print_as_card()
+        if card is not None:
+            card.print_as_card()
+        else:
+            print(f"Card with name '{args.query}' not found")
 
 
 if __name__ == "__main__":

@@ -86,7 +86,7 @@ class Card:
             card.extend(pt_box)
         else:
             card.append(f"+{"-" * card_width}+")
-        print("\n".join(card))
+        print("\n".join(card) + "\n")
 
     def _wrap_and_pad(self, text: str, card_width: int) -> str:
         """Helper function that breaks long strings on to newlines and pads each line
