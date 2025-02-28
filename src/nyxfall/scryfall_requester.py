@@ -20,12 +20,11 @@ def map_response(response: dict[str, any]) -> Card:
     return Card(
         name=response.get("name", ""),
         scryfall_uri=response.get("scryfall_uri", ""),
-        cmc=response.get("cmc", ""),
         mana_cost=response.get("mana_cost", None),
-        colors=response.get("colors", []),
         type_line=response.get("type_line", ""),
         power=response.get("power", None),
         toughness=response.get("toughness", None),
         oracle_text=response.get("oracle_text", ""),
+        flavor_text=response.get("flavor_text", None),
         set=response.get("set", "").upper(),
     )
