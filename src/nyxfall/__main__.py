@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import argparse
-from scryfall_requester import search_exact, search_random
+from nyxfall.scryfall_requester import search_exact, search_random
 
 
 def main():

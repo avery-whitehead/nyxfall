@@ -1,0 +1,17 @@
+[project]
+name = "nyxfall"
+version = "0.0.1"
+description = "nyxfall application"
+dependencies = [
+    "requests"
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+nyxfall = "nyxfall.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
