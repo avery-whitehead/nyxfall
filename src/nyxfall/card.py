@@ -35,8 +35,8 @@ class Card:
     flavor_text: Optional[str]
     set: str
 
-    def print_as_card(self) -> None:
-        """Formats a ``Card`` in a card-looking way and prints it out"""
+    def format_as_card(self) -> str:
+        """Builds a string that will display a ``Card`` similar to an actual MTG card"""
         # Defalt card width to 30 characters unless the card has a particularly long name or mana cost
         card_text_width = (
             CARD_TEXT_DEFAULT_WIDTH
@@ -97,7 +97,8 @@ class Card:
                 f"└{"─" * (card_text_width + 2)}┘",
             ]
             card.extend(set_box)
-        print("\n".join(card) + "\n")
+
+        return "\n".join(card) + "\n"
 
     def _wrap_and_pad(self, text: str, card_width: int) -> str:
         """Helper function that breaks long strings on to newlines and pads each line
