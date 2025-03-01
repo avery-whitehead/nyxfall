@@ -38,9 +38,15 @@ class Card:
         # Defalt card width to 30 characters unless the card has a particularly long name or mana cost
         card_width = (
             CARD_DEFAULT_WIDTH
-            if (len(self.name) + len(self.mana_cost) + NAME_MANA_COST_GAP)
+            if max(
+                (len(self.name) + len(self.mana_cost) + NAME_MANA_COST_GAP),
+                len(self.type_line),
+            )
             <= CARD_DEFAULT_WIDTH
-            else len(self.name) + len(self.mana_cost) + NAME_MANA_COST_GAP
+            else max(
+                (len(self.name) + len(self.mana_cost) + NAME_MANA_COST_GAP),
+                len(self.type_line),
+            )
         )
 
         # Initialise a string list with everything up until the first conditonal section
@@ -50,20 +56,12 @@ class Card:
             f"┌{"─" * card_width}┐",
             f"│{self.name}{" " * (card_width - len(self.name) - len(self.mana_cost))}{self.mana_cost}│",
             f"├{"─" * card_width}┤",
-            # (empty) image box
-            # "\n".join([f"│{" " * card_width}│"] * 3),
-            # f"├{"─" * card_width}┤",
+            # Type line
+            f"│{self.type_line}{" " * (card_width - len(self.type_line))}│",
+            f"├{"─" * card_width}┤",
+            # Oracle text
+            self._wrap_and_pad(self.oracle_text, card_width),
         ]
-
-        # Type line
-        if len(self.type_line) < card_width:
-            card.append(f"│{self.type_line}{" " * (card_width - len(self.type_line))}│")
-        else:
-            card.append(self._wrap_and_pad(self.type_line, card_width))
-        card.append(f"├{"─" * card_width}┤")
-
-        # Oracle text
-        card.append(self._wrap_and_pad(self.oracle_text, card_width))
 
         # Flavour text
         if self.flavor_text:
@@ -85,7 +83,7 @@ class Card:
             ]
             card.extend(pt_box)
         else:
-            card.append(f"+{"-" * card_width}+")
+            card.append(f"└{"─" * card_width}┘")
         print("\n".join(card) + "\n")
 
     def _wrap_and_pad(self, text: str, card_width: int) -> str:
@@ -109,7 +107,7 @@ class Card:
                 for lines in [
                     fill(
                         paragraph,
-                        width=CARD_DEFAULT_WIDTH - 2,
+                        width=card_width - 2,
                         replace_whitespace=False,
                     ).split("\n")
                     for paragraph in text.splitlines()
