@@ -1,10 +1,10 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Literal
 from textwrap import fill
 
-CARD_DEFAULT_WIDTH = 32
+CARD_TEXT_DEFAULT_WIDTH = 32
 # When rendering a card, leave a reasonable space between the end of the name and the start of the mana cost
-NAME_MANA_COST_GAP: int = 2
+NAME_MANA_COST_GAP = 2
 
 
 @dataclass
@@ -21,6 +21,8 @@ class Card:
         oracle_text: Trample (This creature can deal excess combat damage to the player or planeswalker it's attacking.)
         flavor_text: If you feel the ground quake, run. If you hear its bellow, flee. If you see its teeth, it's too late.
         set: XLN
+        collector_number: 180
+        rarity: C
     """
 
     name: str
@@ -36,13 +38,13 @@ class Card:
     def print_as_card(self) -> None:
         """Formats a ``Card`` in a card-looking way and prints it out"""
         # Defalt card width to 30 characters unless the card has a particularly long name or mana cost
-        card_width = (
-            CARD_DEFAULT_WIDTH
+        card_text_width = (
+            CARD_TEXT_DEFAULT_WIDTH
             if max(
                 (len(self.name) + len(self.mana_cost) + NAME_MANA_COST_GAP),
                 len(self.type_line),
             )
-            <= CARD_DEFAULT_WIDTH
+            <= CARD_TEXT_DEFAULT_WIDTH
             else max(
                 (len(self.name) + len(self.mana_cost) + NAME_MANA_COST_GAP),
                 len(self.type_line),
@@ -52,24 +54,29 @@ class Card:
         # Initialise a string list with everything up until the first conditonal section
         # of the display. It will be appended to later and joined with a newline separator at the end
         card = [
+            # Top of outside bounding box
+            f"┌{"─" * (card_text_width + 2)}┐",
             # Name and mana cost
-            f"┌{"─" * card_width}┐",
-            f"│{self.name}{" " * (card_width - len(self.name) - len(self.mana_cost))}{self.mana_cost}│",
-            f"├{"─" * card_width}┤",
+            f"│┌{"─" * card_text_width}┐│",
+            f"││{self.name}{" " * (card_text_width - len(self.name) - len(self.mana_cost))}{self.mana_cost}││",
+            f"│└┬{"─" * (card_text_width - 2)}┬┘│",
+            # Empty image box
+            "\n".join([f"│ │{" " * (card_text_width - 2)}│ │"] * 7),
             # Type line
-            f"│{self.type_line}{" " * (card_width - len(self.type_line))}│",
-            f"├{"─" * card_width}┤",
+            f"│┌┴{"─" * (card_text_width - 2)}┴┐│",
+            f"││{self.type_line}{" " * (card_text_width - len(self.type_line))}││",
+            f"│└┬{"─" * (card_text_width - 2)}┬┘│",
             # Oracle text
-            self._wrap_and_pad(self.oracle_text, card_width),
+            self._wrap_and_pad(self.oracle_text, card_text_width),
         ]
 
         # Flavour text
         if self.flavor_text:
-            card.append(f"│  {"─" * (card_width - 4)}  │")
+            card.append(f"│ │ {"─" * (card_text_width - 4)} │ │")
             # Append and prepend flavour text with ANSI escape code for italics
             card.append(
                 "\x1B[3m"
-                + self._wrap_and_pad(self.flavor_text, card_width)
+                + self._wrap_and_pad(self.flavor_text, card_text_width)
                 + "\x1B[23m"
             )
 
@@ -77,20 +84,26 @@ class Card:
             # Width of characters in power and toughness plus 3 for the forward slash and spacing
             pt_box_width = len(str(self.power)) + len(str(self.toughness)) + 3
             pt_box = [
-                f"│{" " * (card_width - pt_box_width - 1)}┌{"─" * pt_box_width}┤",
-                f"│{" " * (card_width - pt_box_width - 1)}│ {str(self.power)}/{str(self.toughness)} │",
-                f"└{"─" * (card_width - pt_box_width - 1)}┴{"─" * pt_box_width}┘",
+                f"│ │{" " * (card_text_width - pt_box_width - 4)}┌{"─" * pt_box_width}┐│ │",
+                f"│ └─{"─" * (card_text_width - pt_box_width - 5)}┤ {str(self.power)}/{str(self.toughness)} ├┘ │",
+                f"│ {self.set}{" " * (card_text_width - len(self.set) - pt_box_width - 3)}└─────┘  │",
+                f"└{"─" * (card_text_width + 2)}┘",
             ]
             card.extend(pt_box)
         else:
-            card.append(f"└{"─" * card_width}┘")
+            set_box = [
+                f"│ └{"─" * (card_text_width - 2)}┘ │",
+                f"│ {self.set}{" " * (card_text_width - len(self.set))} │",
+                f"└{"─" * (card_text_width + 2)}┘",
+            ]
+            card.extend(set_box)
         print("\n".join(card) + "\n")
 
     def _wrap_and_pad(self, text: str, card_width: int) -> str:
         """Helper function that breaks long strings on to newlines and pads each line
 
         Args:
-            text: Text to be wrapped and padded (e.g. type lines, oracle text)
+            text: Text to be wrapped and padded (e.g. oracle text, flavour text)
             card_width: Width of the card (naturally the width text will be padded to)
 
         Returns:
@@ -103,7 +116,7 @@ class Card:
         # sub-lists and then finally return that list joined with newline as a separator
         return "\n".join(
             [
-                f"│ {line}{" " * (card_width - len(line) - 2)} │"
+                f"│ │{line}{" " * (card_width - len(line) - 2)}│ │"
                 for lines in [
                     fill(
                         paragraph,

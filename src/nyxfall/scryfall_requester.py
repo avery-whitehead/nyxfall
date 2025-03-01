@@ -1,5 +1,5 @@
 import requests
-from typing import Optional
+from typing import Literal, Optional
 from nyxfall.card import Card
 
 SCRYFALL_BASE = "https://api.scryfall.com/cards/"
