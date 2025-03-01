@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, Literal
+from typing import Optional
 from textwrap import fill
 
 CARD_TEXT_DEFAULT_WIDTH = 32
@@ -27,7 +27,7 @@ class Card:
 
     name: str
     scryfall_uri: str
-    mana_cost: Optional[str]
+    mana_cost: str
     type_line: str
     power: Optional[str]
     toughness: Optional[str]
