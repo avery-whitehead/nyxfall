@@ -21,8 +21,6 @@ class Card:
         oracle_text: Trample (This creature can deal excess combat damage to the player or planeswalker it's attacking.)
         flavor_text: If you feel the ground quake, run. If you hear its bellow, flee. If you see its teeth, it's too late.
         set: XLN
-        collector_number: 180
-        rarity: C
     """
 
     name: str
@@ -52,7 +50,8 @@ class Card:
         horizontal = "-" if ascii_only else "─"
         down_horizontal = "+" if ascii_only else "┬"
         up_horizontal = "+" if ascii_only else "┴"
-        left_vertical = "+" if ascii_only else "┤"
+        left_vertical = "|" if ascii_only else "┤"
+        right_vertical = "|" if ascii_only else "├"
 
         # Defalt card width to 30 characters unless the card has a particularly long name or mana cost
         card_text_width = (
@@ -72,7 +71,7 @@ class Card:
         # of the display. It will be appended to later and joined with a newline separator at the end
         card = [
             # Top of outside bounding box
-            f"{down_right}{"─" * (card_text_width + 2)}{down_left}",
+            f"{down_right}{horizontal * (card_text_width + 2)}{down_left}",
             # Name and mana cost
             f"{vertical}{down_right}{horizontal * card_text_width}{down_left}{vertical}",
             f"{vertical}{vertical}{self.name}{" " * (card_text_width - len(self.name) - len(self.mana_cost))}{self.mana_cost}{vertical}{vertical}",
@@ -89,7 +88,7 @@ class Card:
             f"{vertical}{vertical}{self.type_line}{" " * (card_text_width - len(self.type_line))}{vertical}{vertical}",
             f"{vertical}{up_right}{down_horizontal}{horizontal * (card_text_width - 2)}{down_horizontal}{up_left}{vertical}",
             # Oracle text
-            self._wrap_and_pad(self.oracle_text, card_text_width),
+            self._wrap_and_pad(self.oracle_text, card_text_width, vertical),
         ]
 
         # Flavour text
@@ -100,7 +99,7 @@ class Card:
             # Append and prepend flavour text with ANSI escape code for italics
             card.append(
                 ("" if ascii_only else "\x1B[3m")
-                + self._wrap_and_pad(self.flavor_text, card_text_width)
+                + self._wrap_and_pad(self.flavor_text, card_text_width, vertical)
                 + ("" if ascii_only else "\x1B[23m")
             )
 
@@ -109,7 +108,7 @@ class Card:
             pt_box_width = len(str(self.power)) + len(str(self.toughness)) + 3
             pt_box = [
                 f"{vertical} {vertical}{" " * (card_text_width - pt_box_width - 4)}{down_right}{horizontal * pt_box_width}{down_left}{vertical} {vertical}",
-                f"{vertical} {up_right}{horizontal * (card_text_width - pt_box_width - 4)}{left_vertical} {str(self.power)}/{str(self.toughness)} {vertical}{up_left} {vertical}",
+                f"{vertical} {up_right}{horizontal * (card_text_width - pt_box_width - 4)}{left_vertical} {str(self.power)}/{str(self.toughness)} {right_vertical}{up_left} {vertical}",
                 f"{vertical} {self.set}{" " * (card_text_width - len(self.set) - pt_box_width - 3)}{up_right}{horizontal * 5}{up_left}  {vertical}",
                 f"{up_right}{horizontal * (card_text_width + 2)}{up_left}",
             ]
@@ -124,7 +123,7 @@ class Card:
 
         return "\n".join(card) + "\n"
 
-    def _wrap_and_pad(self, text: str, card_width: int) -> str:
+    def _wrap_and_pad(self, text: str, card_width: int, vert_char: str) -> str:
         """Helper function that breaks long strings on to newlines and pads each line
 
         Args:
@@ -141,7 +140,7 @@ class Card:
         # sub-lists and then finally return that list joined with newline as a separator
         return "\n".join(
             [
-                f"│ │{line}{" " * (card_width - len(line) - 2)}│ │"
+                f"{vert_char} {vert_char}{line}{" " * (card_width - len(line) - 2)}{vert_char} {vert_char}"
                 for lines in [
                     fill(
                         paragraph,
