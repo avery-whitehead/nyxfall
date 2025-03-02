@@ -15,16 +15,22 @@ def main():
     parser.add_argument(
         "-r", "--random", help="fetch a random card", action="store_true"
     )
+    parser.add_argument(
+        "-a",
+        "--ascii",
+        help="renders the card frame using only basic ASCII characters",
+        action="store_true",
+    )
     args = parser.parse_args()
 
     if not args.query and not args.random:
         print("You must either supply a query or use the --random flag")
     elif args.random:
-        search_random().print_as_card()
+        print(search_random().format_as_card(ascii_only=args.ascii))
     elif args.exact:
         card = search_exact(args.query)
         if card is not None:
-            card.print_as_card()
+            print(card.format_as_card(ascii_only=args.ascii))
         else:
             print(f"Card with name '{args.query}' not found")
 

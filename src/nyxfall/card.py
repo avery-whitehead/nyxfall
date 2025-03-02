@@ -2,9 +2,9 @@ from dataclasses import dataclass
 from typing import Optional
 from textwrap import fill
 
-CARD_DEFAULT_WIDTH = 32
+CARD_TEXT_DEFAULT_WIDTH = 32
 # When rendering a card, leave a reasonable space between the end of the name and the start of the mana cost
-NAME_MANA_COST_GAP: int = 2
+NAME_MANA_COST_GAP = 2
 
 
 @dataclass
@@ -21,11 +21,13 @@ class Card:
         oracle_text: Trample (This creature can deal excess combat damage to the player or planeswalker it's attacking.)
         flavor_text: If you feel the ground quake, run. If you hear its bellow, flee. If you see its teeth, it's too late.
         set: XLN
+        collector_number: 180
+        rarity: C
     """
 
     name: str
     scryfall_uri: str
-    mana_cost: Optional[str]
+    mana_cost: str
     type_line: str
     power: Optional[str]
     toughness: Optional[str]
@@ -33,66 +35,100 @@ class Card:
     flavor_text: Optional[str]
     set: str
 
-    def print_as_card(self) -> None:
-        """Formats a ``Card`` in a card-looking way and prints it out"""
+    def format_as_card(self, ascii_only: bool = False) -> str:
+        """Builds a string that will display a ``Card`` similar to an actual MTG card
+
+        Args:
+            ascii_only: True if card frame should be rendered using only the basic ASCII set
+
+        Returns:
+            Formatted and newline-separated string that should display a card when printed
+        """
+        down_right = "+" if ascii_only else "┌"
+        down_left = "+" if ascii_only else "┐"
+        up_right = "+" if ascii_only else "└"
+        up_left = "+" if ascii_only else "┘"
+        vertical = "|" if ascii_only else "│"
+        horizontal = "-" if ascii_only else "─"
+        down_horizontal = "+" if ascii_only else "┬"
+        up_horizontal = "+" if ascii_only else "┴"
+        left_vertical = "+" if ascii_only else "┤"
+
         # Defalt card width to 30 characters unless the card has a particularly long name or mana cost
-        card_width = (
-            CARD_DEFAULT_WIDTH
-            if (len(self.name) + len(self.mana_cost) + NAME_MANA_COST_GAP)
-            <= CARD_DEFAULT_WIDTH
-            else len(self.name) + len(self.mana_cost) + NAME_MANA_COST_GAP
+        card_text_width = (
+            CARD_TEXT_DEFAULT_WIDTH
+            if max(
+                (len(self.name) + len(self.mana_cost) + NAME_MANA_COST_GAP),
+                len(self.type_line),
+            )
+            <= CARD_TEXT_DEFAULT_WIDTH
+            else max(
+                (len(self.name) + len(self.mana_cost) + NAME_MANA_COST_GAP),
+                len(self.type_line),
+            )
         )
 
         # Initialise a string list with everything up until the first conditonal section
         # of the display. It will be appended to later and joined with a newline separator at the end
         card = [
+            # Top of outside bounding box
+            f"{down_right}{"─" * (card_text_width + 2)}{down_left}",
             # Name and mana cost
-            f"┌{"─" * card_width}┐",
-            f"│{self.name}{" " * (card_width - len(self.name) - len(self.mana_cost))}{self.mana_cost}│",
-            f"├{"─" * card_width}┤",
-            # (empty) image box
-            # "\n".join([f"│{" " * card_width}│"] * 3),
-            # f"├{"─" * card_width}┤",
+            f"{vertical}{down_right}{horizontal * card_text_width}{down_left}{vertical}",
+            f"{vertical}{vertical}{self.name}{" " * (card_text_width - len(self.name) - len(self.mana_cost))}{self.mana_cost}{vertical}{vertical}",
+            f"{vertical}{up_right}{down_horizontal}{horizontal * (card_text_width - 2)}{down_horizontal}{up_left}{vertical}",
+            # Empty image box
+            "\n".join(
+                [
+                    f"{vertical} {vertical}{" " * (card_text_width - 2)}{vertical} {vertical}"
+                ]
+                * 1
+            ),
+            # Type line
+            f"{vertical}{down_right}{up_horizontal}{horizontal * (card_text_width - 2)}{up_horizontal}{down_left}{vertical}",
+            f"{vertical}{vertical}{self.type_line}{" " * (card_text_width - len(self.type_line))}{vertical}{vertical}",
+            f"{vertical}{up_right}{down_horizontal}{horizontal * (card_text_width - 2)}{down_horizontal}{up_left}{vertical}",
+            # Oracle text
+            self._wrap_and_pad(self.oracle_text, card_text_width),
         ]
-
-        # Type line
-        if len(self.type_line) < card_width:
-            card.append(f"│{self.type_line}{" " * (card_width - len(self.type_line))}│")
-        else:
-            card.append(self._wrap_and_pad(self.type_line, card_width))
-        card.append(f"├{"─" * card_width}┤")
-
-        # Oracle text
-        card.append(self._wrap_and_pad(self.oracle_text, card_width))
 
         # Flavour text
         if self.flavor_text:
-            card.append(f"│  {"─" * (card_width - 4)}  │")
+            card.append(
+                f"{vertical} {vertical} {horizontal * (card_text_width - 4)} {vertical} {vertical}"
+            )
             # Append and prepend flavour text with ANSI escape code for italics
             card.append(
-                "\x1B[3m"
-                + self._wrap_and_pad(self.flavor_text, card_width)
-                + "\x1B[23m"
+                ("" if ascii_only else "\x1B[3m")
+                + self._wrap_and_pad(self.flavor_text, card_text_width)
+                + ("" if ascii_only else "\x1B[23m")
             )
 
         if self.power and self.toughness:
             # Width of characters in power and toughness plus 3 for the forward slash and spacing
             pt_box_width = len(str(self.power)) + len(str(self.toughness)) + 3
             pt_box = [
-                f"│{" " * (card_width - pt_box_width - 1)}┌{"─" * pt_box_width}┤",
-                f"│{" " * (card_width - pt_box_width - 1)}│ {str(self.power)}/{str(self.toughness)} │",
-                f"└{"─" * (card_width - pt_box_width - 1)}┴{"─" * pt_box_width}┘",
+                f"{vertical} {vertical}{" " * (card_text_width - pt_box_width - 4)}{down_right}{horizontal * pt_box_width}{down_left}{vertical} {vertical}",
+                f"{vertical} {up_right}{horizontal * (card_text_width - pt_box_width - 4)}{left_vertical} {str(self.power)}/{str(self.toughness)} {vertical}{up_left} {vertical}",
+                f"{vertical} {self.set}{" " * (card_text_width - len(self.set) - pt_box_width - 3)}{up_right}{horizontal * 5}{up_left}  {vertical}",
+                f"{up_right}{horizontal * (card_text_width + 2)}{up_left}",
             ]
             card.extend(pt_box)
         else:
-            card.append(f"+{"-" * card_width}+")
-        print("\n".join(card) + "\n")
+            set_box = [
+                f"{vertical} {up_right}{horizontal * (card_text_width - 2)}{up_left} {vertical}",
+                f"{vertical} {self.set}{" " * (card_text_width - len(self.set))} {vertical}",
+                f"{up_right}{horizontal * (card_text_width + 2)}{up_left}",
+            ]
+            card.extend(set_box)
+
+        return "\n".join(card) + "\n"
 
     def _wrap_and_pad(self, text: str, card_width: int) -> str:
         """Helper function that breaks long strings on to newlines and pads each line
 
         Args:
-            text: Text to be wrapped and padded (e.g. type lines, oracle text)
+            text: Text to be wrapped and padded (e.g. oracle text, flavour text)
             card_width: Width of the card (naturally the width text will be padded to)
 
         Returns:
@@ -105,11 +141,11 @@ class Card:
         # sub-lists and then finally return that list joined with newline as a separator
         return "\n".join(
             [
-                f"│ {line}{" " * (card_width - len(line) - 2)} │"
+                f"│ │{line}{" " * (card_width - len(line) - 2)}│ │"
                 for lines in [
                     fill(
                         paragraph,
-                        width=CARD_DEFAULT_WIDTH - 2,
+                        width=card_width - 2,
                         replace_whitespace=False,
                     ).split("\n")
                     for paragraph in text.splitlines()

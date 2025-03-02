@@ -1,5 +1,5 @@
 import requests
-from typing import Optional
+from typing import Any, Optional
 from nyxfall.card import Card
 
 SCRYFALL_BASE = "https://api.scryfall.com/cards/"
@@ -16,11 +16,11 @@ def search_random() -> Card:
     return map_response(requests.get(f"{SCRYFALL_BASE}random").json())
 
 
-def map_response(response: dict[str, any]) -> Card:
+def map_response(response: dict[str, Any]) -> Card:
     return Card(
         name=response.get("name", ""),
         scryfall_uri=response.get("scryfall_uri", ""),
-        mana_cost=response.get("mana_cost", None),
+        mana_cost=response.get("mana_cost", ""),
         type_line=response.get("type_line", ""),
         power=response.get("power", None),
         toughness=response.get("toughness", None),
