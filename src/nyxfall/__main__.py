@@ -4,6 +4,11 @@ from nyxfall.scryfall_requester import search_exact, search_random
 
 
 def main():
+    args = parse_args()
+    run_cli(args)
+
+
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("query", help="query to run against Scryfall", nargs="?")
     parser.add_argument(
@@ -21,8 +26,10 @@ def main():
         help="renders the card frame using only basic ASCII characters",
         action="store_true",
     )
-    args = parser.parse_args()
+    return parser.parse_args()
 
+
+def run_cli(args: argparse.Namespace):
     if not args.query and not args.random:
         print("You must either supply a query or use the --random flag")
     elif args.random:

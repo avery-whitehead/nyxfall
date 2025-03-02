@@ -3,7 +3,8 @@ name = "nyxfall"
 version = "0.0.1"
 description = "nyxfall application"
 dependencies = [
-    "requests"
+    "requests",
+    "pytest"
 ]
 
 [build-system]
