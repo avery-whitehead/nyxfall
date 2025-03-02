@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 import argparse
 from beaupy import select  # type: ignore
-from beaupy.spinners import *  # type: ignore
+from beaupy.spinners import Spinner  # type: ignore
 from nyxfall.card import Card
-import nyxfall.scryfall_requester
+from nyxfall.scryfall_requester import search_exact, search_query, search_random
 
 
 def main():
@@ -12,6 +12,11 @@ def main():
 
 
 def parse_args() -> argparse.Namespace:
+    """Parses CLI arguments
+
+    Returns:
+        ``argparse.Namespace`` dictionary of arguments and their values
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("query", help="query to run against Scryfall", nargs="?")
     parser.add_argument(
@@ -33,33 +38,32 @@ def parse_args() -> argparse.Namespace:
 
 
 def run_cli(args: argparse.Namespace):
+    """Runs the CLI application based on the arguments provided"""
     if not args.query and not args.random:
         print("You must either supply a query or use the --random flag")
     elif args.random:
-        print(
-            nyxfall.scryfall_requester.search_random().format_as_card(
-                ascii_only=args.ascii
-            )
-        )
+        print(search_random().format_as_card(ascii_only=args.ascii))
     elif args.exact:
-        card = nyxfall.scryfall_requester.search_exact(args.query)
+        card = search_exact(args.query)
         if card is not None:
             print(card.format_as_card(ascii_only=args.ascii))
         else:
-            print(f"Card with name '{args.query}' not found")
+            print(f"Could not find a card with the name '{args.query}'")
     else:
-        spinner = Spinner()
+        spinner = Spinner(text="Fetching cards")
         spinner.start()
-        cards = nyxfall.scryfall_requester.search_query(args.query).data
+        cards = search_query(args.query)
         spinner.stop()
-        selected_card: Card = select(
-            options=cards,  # type: ignore
-            preprocessor=lambda card: card.name,
-            pagination=True,
-            page_size=7,
-        )
-
-        print(selected_card.format_as_card())
+        if cards:
+            selected_card: Card = select(
+                options=cards,  # type: ignore
+                preprocessor=lambda card: card.name,
+                pagination=True,
+                page_size=7,
+            )
+            print(selected_card.format_as_card(ascii_only=args.ascii))
+        else:
+            print(f"Could not find any cards matchng the query '{args.query}'")
 
 
 if __name__ == "__main__":
