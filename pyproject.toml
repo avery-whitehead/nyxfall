@@ -1,12 +1,30 @@
 [project]
 name = "nyxfall"
-version = "0.0.1"
-description = "nyxfall application"
+version = "0.1.0"
+description = "A command-line Magic: the Gathering card search"
+authors = [
+    { name = "Avery Abrahams-Whitehead", email = "averywhthead@gmail.com" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: MIT License",
+    "Development Status :: 4 - Beta",
+]
+readme = "README.md"
+requires-python = ">=3.12.3"
 dependencies = [
     "requests",
     "pytest",
-    "beaupy"
+    "beaupy",
+    "build",
+    "twine"
 ]
+keywords = ["mtg", "cards", "magic", "gathering", "scyfall"]
+
+[project.urls]
+Homepage = "https://github.com/avery-whitehead/nyxfall"
+Issues = "https://github.com/avery-whitehead/nyxfall/issues"
 
 [build-system]
 requires = ["setuptools"]
