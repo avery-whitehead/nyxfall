@@ -1,6 +1,22 @@
 # nyxfall, a command-line Magic: the Gathering card search
 ![demo](https://github.com/user-attachments/assets/2bc7256a-cf40-47d5-b980-a3a5aabe01ae)
 
+## Installation
+
+### From source (requires Python 3.12.3 or greater)
+
+(optional) Start a virtual environment
+
+```console
+$ python -m venv venv
+$ source venv/bin/activate
+```
+
+Install the project with pip
+```console
+$ python -m pip install .
+```
+
 ## Usage
 ### Searching for a set of cards
 If more than one card is returned from your search, use the arrow keys + enter to select which one to display
@@ -90,20 +106,4 @@ $ nyxfall -r
 │ └───────────────────────┤ 1/1 ├┘ │
 │ FDN                     └─────┘  │
 └──────────────────────────────────┘
-```
-
-## Installation
-
-### From source (requires Python 3.12.3 or greater)
-
-(optional) Start a virtual environment
-
-```console
-$ python -m venv venv
-$ source venv/bin/activate
-```
-
-Install the project with pip
-```console
-$ python -m pip install .
 ```
