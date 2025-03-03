@@ -18,6 +18,21 @@ $ python -m pip install .
 ```
 
 ## Usage
+
+```console
+$ nyxfall -h
+usage: nyxfall [-h] [-e] [-r] [-a] [query]
+
+positional arguments:
+  query         query to run against Scryfall
+
+options:
+  -h, --help    show this help message and exit
+  -e, --exact   try and match the query with an exact card name
+  -r, --random  fetch a random card
+  -a, --ascii   renders the card frame using only basic ASCII characters
+```
+
 ### Searching for a set of cards
 If more than one card is returned from your search, use the arrow keys + enter to select which one to display
 ```console
