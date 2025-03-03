@@ -2,6 +2,10 @@
 ![demo](https://github.com/user-attachments/assets/2bc7256a-cf40-47d5-b980-a3a5aabe01ae)
 
 ## Installation
+### Using pip
+```console
+$ pip install nyxfall
+```
 
 ### From source (requires Python 3.12.3 or greater)
 
