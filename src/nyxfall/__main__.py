@@ -54,7 +54,9 @@ def run_cli(args: argparse.Namespace):
         spinner.start()
         cards = search_query(args.query)
         spinner.stop()
-        if cards:
+        if len(cards) == 1:
+            print(cards[0].format_as_card(ascii_only=args.ascii))
+        elif cards:
             selected_card: Card = select(
                 options=cards,  # type: ignore
                 preprocessor=lambda card: card.name,
