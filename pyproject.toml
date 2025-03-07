@@ -1,6 +1,6 @@
 [project]
 name = "nyxfall"
-version = "0.1.0"
+version = "0.2.0"
 description = "A command-line Magic: the Gathering card search"
 authors = [
     { name = "Avery Abrahams-Whitehead", email = "averywhthead@gmail.com" }
@@ -20,7 +20,7 @@ dependencies = [
     "build",
     "twine"
 ]
-keywords = ["mtg", "cards", "magic", "gathering", "scyfall"]
+keywords = ["mtg", "cards", "magic", "gathering", "scryfall"]
 
 [project.urls]
 Homepage = "https://github.com/avery-whitehead/nyxfall"
