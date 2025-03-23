@@ -1,4 +1,4 @@
-from nyxfall.card import Card
+from nyxfall.card_face import CardFace
 
 
 def test_extended_ascii_no_pt():
@@ -29,7 +29,7 @@ def test_extended_ascii_no_pt():
         )
         + "\n"
     )
-    card = Card(
+    card = CardFace(
         name="Lightning Bolt",
         scryfall_uri="",
         mana_cost="{R}",
@@ -73,7 +73,7 @@ def test_extended_ascii_pt():
         )
         + "\n"
     )
-    card = Card(
+    card = CardFace(
         name="Colossal Dreadmaw",
         scryfall_uri="",
         mana_cost="{4}{G}{G}",
@@ -117,7 +117,7 @@ def test_basic_ascii_no_pt():
         + "\n"
     )
 
-    card = Card(
+    card = CardFace(
         name="Lightning Bolt",
         scryfall_uri="",
         mana_cost="{R}",
@@ -162,7 +162,7 @@ def test_basic_ascii_pt():
         + "\n"
     )
 
-    card = Card(
+    card = CardFace(
         name="Colossal Dreadmaw",
         scryfall_uri="",
         mana_cost="{4}{G}{G}",
@@ -209,7 +209,7 @@ def test_long_name_no_pt():
         + "\n"
     )
 
-    card = Card(
+    card = CardFace(
         name="Realmbreaker, the Invasion Tree",
         scryfall_uri="",
         mana_cost="{3}",
@@ -254,7 +254,7 @@ def test_long_type_line_pt():
         + "\n"
     )
 
-    card = Card(
+    card = CardFace(
         name="The Reality Chip",
         scryfall_uri="",
         mana_cost="{1}{U}",

@@ -1,6 +1,6 @@
 [project]
 name = "nyxfall"
-version = "0.2.0"
+version = "1.0.0"
 description = "A command-line Magic: the Gathering card search"
 authors = [
     { name = "Avery Abrahams-Whitehead", email = "averywhthead@gmail.com" }

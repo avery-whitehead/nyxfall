@@ -3,7 +3,11 @@ import argparse
 from beaupy import select  # type: ignore
 from beaupy.spinners import Spinner  # type: ignore
 from nyxfall.card import Card
-from nyxfall.scryfall_requester import search_exact, search_query, search_random
+from nyxfall.scryfall_requester import (
+    search_exact,
+    search_query,
+    search_random,
+)
 
 
 def main():
@@ -18,7 +22,9 @@ def parse_args() -> argparse.Namespace:
         ``argparse.Namespace`` dictionary of arguments and their values
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("query", help="query to run against Scryfall", nargs="?")
+    parser.add_argument(
+        "query", help="query to run against Scryfall", nargs="?"
+    )
     parser.add_argument(
         "-e",
         "--exact",
@@ -42,11 +48,13 @@ def run_cli(args: argparse.Namespace):
     if not args.query and not args.random:
         print("You must either supply a query or use the --random flag")
     elif args.random:
-        print(search_random().format_as_card(ascii_only=args.ascii))
+        for face in search_random().faces:
+            print(face.format_as_card(ascii_only=args.ascii))
     elif args.exact:
         card = search_exact(args.query)
         if card is not None:
-            print(card.format_as_card(ascii_only=args.ascii))
+            for face in card.faces:
+                print(face.format_as_card(ascii_only=args.ascii))
         else:
             print(f"Could not find a card with the name '{args.query}'")
     else:
@@ -55,7 +63,8 @@ def run_cli(args: argparse.Namespace):
         cards = search_query(args.query)
         spinner.stop()
         if len(cards) == 1:
-            print(cards[0].format_as_card(ascii_only=args.ascii))
+            for face in cards[0].faces:
+                print(face.format_as_card(ascii_only=args.ascii))
         elif cards:
             selected_card: Card = select(
                 options=cards,  # type: ignore
@@ -63,7 +72,8 @@ def run_cli(args: argparse.Namespace):
                 pagination=True,
                 page_size=7,
             )
-            print(selected_card.format_as_card(ascii_only=args.ascii))
+            for face in selected_card.faces:
+                print(face.format_as_card(ascii_only=args.ascii))
         else:
             print(f"Could not find any cards matchng the query '{args.query}'")
 
