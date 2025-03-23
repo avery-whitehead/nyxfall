@@ -2,6 +2,7 @@ import time
 import requests
 from typing import Any, Optional
 from nyxfall.card import Card
+from nyxfall.card_face import CardFace
 
 SCRYFALL_BASE = "https://api.scryfall.com/cards/"
 HEADERS = {"User-Agent": "NyxfallApp/0.0.1", "Accept": "*/*"}
@@ -28,7 +29,9 @@ def search_random() -> Card:
     Returns:
         ``Card`` object of a random card
     """
-    return _map_response(requests.get(f"{SCRYFALL_BASE}random", headers=HEADERS).json())
+    return _map_response(
+        requests.get(f"{SCRYFALL_BASE}random", headers=HEADERS).json()
+    )
 
 
 def search_query(query: str) -> list[Card]:
@@ -56,14 +59,28 @@ def search_query(query: str) -> list[Card]:
 
 
 def _map_response(response: dict[str, Any]) -> Card:
+    if response.get("card_faces") is None:
+        return Card(
+            faces=[_map_card_face(response)], name=response.get("name", "")
+        )
+
     return Card(
+        faces=[
+            _map_card_face(face) for face in response.get("card_faces", [])
+        ],
         name=response.get("name", ""),
-        scryfall_uri=response.get("scryfall_uri", ""),
-        mana_cost=response.get("mana_cost", ""),
-        type_line=response.get("type_line", ""),
-        power=response.get("power", None),
-        toughness=response.get("toughness", None),
-        oracle_text=response.get("oracle_text", ""),
-        flavor_text=response.get("flavor_text", None),
-        set=response.get("set", "").upper(),
+    )
+
+
+def _map_card_face(face: dict[str, Any]) -> CardFace:
+    return CardFace(
+        name=face.get("name", ""),
+        scryfall_uri=face.get("scryfall_uri", ""),
+        mana_cost=face.get("mana_cost", ""),
+        type_line=face.get("type_line", ""),
+        power=face.get("power", None),
+        toughness=face.get("toughness", None),
+        oracle_text=face.get("oracle_text", ""),
+        flavor_text=face.get("flavor_text", None),
+        set=face.get("set", "").upper(),
     )
